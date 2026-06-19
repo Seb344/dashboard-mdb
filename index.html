@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard MDB — Seb</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e8e8e8; min-height: 100vh; }
+
+  header { background: #1a1a2e; padding: 1.5rem 2rem; border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 1.3rem; font-weight: 500; color: #fff; }
+  header .date { font-size: 0.85rem; color: #888; }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 1.2rem 2rem 0; background: #0f1117; }
+  .tab-btn { background: #1e1e30; border: 1px solid #2a2a4a; color: #aaa; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.15s; }
+  .tab-btn:hover { background: #2a2a4a; color: #ddd; }
+  .tab-btn.active { background: #0f6e56; border-color: #0f6e56; color: #fff; font-weight: 500; }
+
+  .content { padding: 1.5rem 2rem 2rem; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .period-label { font-size: 0.8rem; color: #666; margin-bottom: 1.2rem; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+
+  .kpi-card { border-radius: 12px; padding: 1.5rem; text-align: center; }
+  .kpi-blue   { background: #0d2a4a; border: 1px solid #185FA5; }
+  .kpi-purple { background: #1e1535; border: 1px solid #534AB7; }
+  .kpi-teal   { background: #0a2820; border: 1px solid #0f6e56; }
+  .kpi-amber  { background: #2a1e08; border: 1px solid #854F0B; }
+
+  .kpi-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .kpi-value { font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 0.4rem; }
+  .kpi-label { font-size: 0.8rem; color: #999; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .funnel { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 12px; padding: 1.2rem 1.5rem; }
+  .funnel-title { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+  .funnel-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .funnel-row:last-child { margin-bottom: 0; }
+  .funnel-label { font-size: 0.82rem; color: #aaa; min-width: 200px; }
+  .funnel-bar-wrap { flex: 1; background: #252540; border-radius: 4px; height: 8px; overflow: hidden; }
+  .funnel-bar { height: 100%; background: #185FA5; border-radius: 4px; transition: width 0.4s ease; }
+  .funnel-bar.bar-teal { background: #0f6e56; }
+  .funnel-bar.bar-amber { background: #854F0B; }
+  .funnel-pct { font-size: 0.85rem; font-weight: 500; color: #ddd; min-width: 36px; text-align: right; }
+
+  .refresh { font-size: 0.75rem; color: #555; margin-top: 1.5rem; text-align: right; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏗️ Dashboard MDB — Seb</h1>
+  <div class="date">Généré le 19/06/2026</div>
+</header>
+<div class="tabs">
+<button class="tab-btn active" onclick="showTab(0)">Semaine en cours</button>
+<button class="tab-btn " onclick="showTab(1)">Semaine précédente</button>
+<button class="tab-btn " onclick="showTab(2)">Jun. 2026 (mois en cours)</button>
+<button class="tab-btn " onclick="showTab(3)">Mois précédent</button>
+<button class="tab-btn " onclick="showTab(4)">T. en cours (T2)</button>
+<button class="tab-btn " onclick="showTab(5)">T. précédent (T1 2026)</button>
+<button class="tab-btn " onclick="showTab(6)">T1 2026</button>
+<button class="tab-btn " onclick="showTab(7)">T2 2026</button>
+<button class="tab-btn " onclick="showTab(8)">T3 2026</button>
+<button class="tab-btn " onclick="showTab(9)">T4 2026</button>
+<button class="tab-btn " onclick="showTab(10)">Année 2026</button>
+
+</div>
+<div class="content">
+
+<div class="panel active" id="panel-0">
+  <div class="period-label">15/06/2026 → 21/06/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">5</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:80%"></div>
+      </div>
+      <span class="funnel-pct">80%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:0%"></div>
+      </div>
+      <span class="funnel-pct">0%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:0%"></div>
+      </div>
+      <span class="funnel-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-1">
+  <div class="period-label">08/06/2026 → 14/06/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:100%"></div>
+      </div>
+      <span class="funnel-pct">100%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:100%"></div>
+      </div>
+      <span class="funnel-pct">100%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:50%"></div>
+      </div>
+      <span class="funnel-pct">50%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-2">
+  <div class="period-label">01/06/2026 → 30/06/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">10</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">9</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:90%"></div>
+      </div>
+      <span class="funnel-pct">90%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:22%"></div>
+      </div>
+      <span class="funnel-pct">22%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:50%"></div>
+      </div>
+      <span class="funnel-pct">50%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-3">
+  <div class="period-label">01/05/2026 → 31/05/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">15</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">9</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">7</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">5</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:60%"></div>
+      </div>
+      <span class="funnel-pct">60%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:78%"></div>
+      </div>
+      <span class="funnel-pct">78%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:71%"></div>
+      </div>
+      <span class="funnel-pct">71%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-4">
+  <div class="period-label">01/04/2026 → 30/06/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">31</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">23</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">13</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">9</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:74%"></div>
+      </div>
+      <span class="funnel-pct">74%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:57%"></div>
+      </div>
+      <span class="funnel-pct">57%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:69%"></div>
+      </div>
+      <span class="funnel-pct">69%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-5">
+  <div class="period-label">01/01/2026 → 31/03/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">32</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">20</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">8</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:62%"></div>
+      </div>
+      <span class="funnel-pct">62%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:60%"></div>
+      </div>
+      <span class="funnel-pct">60%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:67%"></div>
+      </div>
+      <span class="funnel-pct">67%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-6">
+  <div class="period-label">01/01/2026 → 31/03/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">32</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">20</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">8</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:62%"></div>
+      </div>
+      <span class="funnel-pct">62%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:60%"></div>
+      </div>
+      <span class="funnel-pct">60%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:67%"></div>
+      </div>
+      <span class="funnel-pct">67%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-7">
+  <div class="period-label">01/04/2026 → 30/06/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">31</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">23</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">13</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">9</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:74%"></div>
+      </div>
+      <span class="funnel-pct">74%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:57%"></div>
+      </div>
+      <span class="funnel-pct">57%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:69%"></div>
+      </div>
+      <span class="funnel-pct">69%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-8">
+  <div class="period-label">01/07/2026 → 30/09/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:0%"></div>
+      </div>
+      <span class="funnel-pct">0%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:0%"></div>
+      </div>
+      <span class="funnel-pct">0%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:0%"></div>
+      </div>
+      <span class="funnel-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-9">
+  <div class="period-label">01/10/2026 → 31/12/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:0%"></div>
+      </div>
+      <span class="funnel-pct">0%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:0%"></div>
+      </div>
+      <span class="funnel-pct">0%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:0%"></div>
+      </div>
+      <span class="funnel-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel " id="panel-10">
+  <div class="period-label">01/01/2026 → 31/12/2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">📑</div>
+      <div class="kpi-value">63</div>
+      <div class="kpi-label">Sélectionnés</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">🧪</div>
+      <div class="kpi-value">43</div>
+      <div class="kpi-label">Analyses</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-value">25</div>
+      <div class="kpi-label">Visites</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">17</div>
+      <div class="kpi-label">Offres</div>
+    </div>
+  </div>
+  <div class="funnel">
+    <div class="funnel-title">Taux de conversion</div>
+    <div class="funnel-row">
+      <span class="funnel-label">Sélectionnés → Analyses</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:68%"></div>
+      </div>
+      <span class="funnel-pct">68%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Analyses → Visites</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-teal" style="width:58%"></div>
+      </div>
+      <span class="funnel-pct">58%</span>
+    </div>
+    <div class="funnel-row">
+      <span class="funnel-label">Visites → Offres</span>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar bar-amber" style="width:68%"></div>
+      </div>
+      <span class="funnel-pct">68%</span>
+    </div>
+  </div>
+</div>
+
+  <div class="refresh">Données Notion · relancer dashboard_mdb.py pour actualiser</div>
+</div>
+<script>
+function showTab(i) {
+  document.querySelectorAll('.tab-btn').forEach((b,j) => b.classList.toggle('active', i===j));
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', i===j));
+}
+</script>
+</body>
+</html>
