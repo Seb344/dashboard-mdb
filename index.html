@@ -1,631 +1,236 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Dashboard MDB — Seb</title>
+<meta charset="UTF-8"><title>Dashboard MDB</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e8e8e8; min-height: 100vh; }
-
-  header { background: #1a1a2e; padding: 1.5rem 2rem; border-bottom: 1px solid #2a2a4a; display: flex; align-items: center; justify-content: space-between; }
-  header h1 { font-size: 1.3rem; font-weight: 500; color: #fff; }
-  header .date { font-size: 0.85rem; color: #888; }
-
-  .tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 1.2rem 2rem 0; background: #0f1117; }
-  .tab-btn { background: #1e1e30; border: 1px solid #2a2a4a; color: #aaa; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.15s; }
-  .tab-btn:hover { background: #2a2a4a; color: #ddd; }
-  .tab-btn.active { background: #0f6e56; border-color: #0f6e56; color: #fff; font-weight: 500; }
-
-  .content { padding: 1.5rem 2rem 2rem; }
-  .panel { display: none; }
-  .panel.active { display: block; }
-
-  .period-label { font-size: 0.8rem; color: #666; margin-bottom: 1.2rem; }
-
-  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-
-  .kpi-card { border-radius: 12px; padding: 1.5rem; text-align: center; }
-  .kpi-blue   { background: #0d2a4a; border: 1px solid #185FA5; }
-  .kpi-purple { background: #1e1535; border: 1px solid #534AB7; }
-  .kpi-teal   { background: #0a2820; border: 1px solid #0f6e56; }
-  .kpi-amber  { background: #2a1e08; border: 1px solid #854F0B; }
-
-  .kpi-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
-  .kpi-value { font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 0.4rem; }
-  .kpi-label { font-size: 0.8rem; color: #999; text-transform: uppercase; letter-spacing: 0.05em; }
-
-  .funnel { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 12px; padding: 1.2rem 1.5rem; }
-  .funnel-title { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
-  .funnel-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .funnel-row:last-child { margin-bottom: 0; }
-  .funnel-label { font-size: 0.82rem; color: #aaa; min-width: 200px; }
-  .funnel-bar-wrap { flex: 1; background: #252540; border-radius: 4px; height: 8px; overflow: hidden; }
-  .funnel-bar { height: 100%; background: #185FA5; border-radius: 4px; transition: width 0.4s ease; }
-  .funnel-bar.bar-teal { background: #0f6e56; }
-  .funnel-bar.bar-amber { background: #854F0B; }
-  .funnel-pct { font-size: 0.85rem; font-weight: 500; color: #ddd; min-width: 36px; text-align: right; }
-
-  .refresh { font-size: 0.75rem; color: #555; margin-top: 1.5rem; text-align: right; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0f1117;color:#e8e8e8;min-height:100vh}
+header{background:#1a1a2e;padding:1.2rem 2rem;border-bottom:1px solid #2a2a4a;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:1.2rem;font-weight:500;color:#fff}
+header .meta{font-size:.75rem;color:#666;text-align:right;line-height:1.6}
+.zone{padding:1rem 2rem 0}
+.zone-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.tabs-fixed{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.8rem}
+.tab-btn{background:#1e1e30;border:1px solid #2a2a4a;color:#aaa;padding:6px 16px;border-radius:20px;cursor:pointer;font-size:.8rem;transition:all .15s}
+.tab-btn:hover{background:#2a2a4a;color:#ddd}
+.tab-btn.active{background:#0f6e56;border-color:#0f6e56;color:#fff;font-weight:500}
+.selectors{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:.8rem 2rem;border-top:1px solid #1a1a2e;border-bottom:1px solid #1a1a2e}
+.sel-group{display:flex;align-items:center;gap:6px}
+.sel-group label{font-size:.75rem;color:#666}
+.sel-group select{background:#1e1e30;border:1px solid #2a2a4a;color:#ccc;padding:5px 10px;border-radius:20px;font-size:.75rem;cursor:pointer}
+.content{padding:1.2rem 2rem 2rem}
+.period-info{font-size:.75rem;color:#555;margin-bottom:1rem}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}
+.kpi-card{border-radius:12px;padding:1.2rem;text-align:center}
+.kpi-blue  {background:#0d2a4a;border:1px solid #185FA5}
+.kpi-purple{background:#1e1535;border:1px solid #534AB7}
+.kpi-teal  {background:#0a2820;border:1px solid #0f6e56}
+.kpi-amber {background:#2a1e08;border:1px solid #854F0B}
+.kpi-icon{font-size:1.5rem;margin-bottom:.4rem}
+.kpi-value{font-size:2.6rem;font-weight:700;color:#fff;line-height:1;margin-bottom:.3rem}
+.kpi-label{font-size:.72rem;color:#888;text-transform:uppercase;letter-spacing:.05em}
+.kpi-obj{font-size:.68rem;color:#444;margin-top:.25rem}
+.funnel{background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:1rem 1.4rem;margin-bottom:1.5rem}
+.funnel-title{font-size:.72rem;color:#555;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.9rem}
+.f-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:.5px solid #2a2a4a}
+.f-row:last-child{border-bottom:none}
+.f-label{font-size:.78rem;color:#888;min-width:220px}
+.f-wrap{flex:1;background:#252540;border-radius:4px;height:7px;overflow:hidden}
+.f-bar{height:100%;border-radius:4px;transition:width .4s ease}
+.b1{background:#185FA5}.b2{background:#534AB7}.b3{background:#0f6e56}.b4{background:#3B6D11}
+.f-pct{font-size:.82rem;font-weight:500;color:#ddd;min-width:34px;text-align:right}
+.chart-box{background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:1rem 1.4rem}
+.chart-title{font-size:.72rem;color:#555;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem}
+.footer{font-size:.7rem;color:#333;margin-top:1.2rem;text-align:right}
 </style>
 </head>
 <body>
 <header>
   <h1>🏗️ Dashboard MDB — Seb</h1>
-  <div class="date">Généré le 19/06/2026</div>
+  <div class="meta">Généré le 19/06/2026<br>Objectifs semaine : 10 analyses · 5 visites · 3 offres</div>
 </header>
-<div class="tabs">
-<button class="tab-btn active" onclick="showTab(0)">Semaine en cours</button>
-<button class="tab-btn " onclick="showTab(1)">Semaine précédente</button>
-<button class="tab-btn " onclick="showTab(2)">Jun. 2026 (mois en cours)</button>
-<button class="tab-btn " onclick="showTab(3)">Mois précédent</button>
-<button class="tab-btn " onclick="showTab(4)">T. en cours (T2)</button>
-<button class="tab-btn " onclick="showTab(5)">T. précédent (T1 2026)</button>
-<button class="tab-btn " onclick="showTab(6)">T1 2026</button>
-<button class="tab-btn " onclick="showTab(7)">T2 2026</button>
-<button class="tab-btn " onclick="showTab(8)">T3 2026</button>
-<button class="tab-btn " onclick="showTab(9)">T4 2026</button>
-<button class="tab-btn " onclick="showTab(10)">Année 2026</button>
-
+<div class="zone">
+  <div class="zone-label">Périodes rapides</div>
+  <div class="tabs-fixed">
+    <button class="tab-btn active" onclick="showFixed(0)">Semaine en cours</button>
+    <button class="tab-btn" onclick="showFixed(1)">Mois en cours</button>
+    <button class="tab-btn" onclick="showFixed(2)">Trimestre en cours</button>
+    <button class="tab-btn" onclick="showFixed(3)">Année 2026</button>
+  </div>
+</div>
+<div class="selectors">
+  <span style="font-size:.72rem;color:#444;margin-right:4px;">Période libre →</span>
+  <div class="sel-group"><label>Semaine</label><select id="sel-sem" onchange="showCustom('sem')"><option value="">--</option></select></div>
+  <div class="sel-group"><label>Mois</label><select id="sel-mois" onchange="showCustom('mois')"><option value="">--</option></select></div>
+  <div class="sel-group"><label>Trimestre</label><select id="sel-trim" onchange="showCustom('trim')"><option value="">--</option></select></div>
 </div>
 <div class="content">
-
-<div class="panel active" id="panel-0">
-  <div class="period-label">15/06/2026 → 21/06/2026</div>
+  <div class="period-info" id="period-info">15/06/2026 → 21/06/2026</div>
   <div class="kpi-grid">
     <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">5</div>
+      <div class="kpi-icon">📑</div><div class="kpi-value" id="v-sel">5</div>
       <div class="kpi-label">Sélectionnés</div>
     </div>
     <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">4</div>
-      <div class="kpi-label">Analyses</div>
+      <div class="kpi-icon">🧪</div><div class="kpi-value" id="v-ana">3</div>
+      <div class="kpi-label">Analyses</div><div class="kpi-obj">obj. 10 / sem.</div>
     </div>
     <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Visites</div>
+      <div class="kpi-icon">👁️</div><div class="kpi-value" id="v-vis">0</div>
+      <div class="kpi-label">Visites</div><div class="kpi-obj">obj. 5 / sem.</div>
     </div>
     <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Offres</div>
+      <div class="kpi-icon">💰</div><div class="kpi-value" id="v-off">0</div>
+      <div class="kpi-label">Offres</div><div class="kpi-obj">obj. 3 / sem.</div>
     </div>
   </div>
   <div class="funnel">
     <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:80%"></div>
-      </div>
-      <span class="funnel-pct">80%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:0%"></div>
-      </div>
-      <span class="funnel-pct">0%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:0%"></div>
-      </div>
-      <span class="funnel-pct">0%</span>
-    </div>
+    <div class="f-row"><span class="f-label">Sélectionnés → Analyses</span><div class="f-wrap"><div class="f-bar b1" id="b1" style="width:60%"></div></div><span class="f-pct" id="p1">60%</span></div>
+    <div class="f-row"><span class="f-label">Analyses → Visites</span><div class="f-wrap"><div class="f-bar b2" id="b2" style="width:0%"></div></div><span class="f-pct" id="p2">0%</span></div>
+    <div class="f-row"><span class="f-label">Visites → Offres</span><div class="f-wrap"><div class="f-bar b3" id="b3" style="width:0%"></div></div><span class="f-pct" id="p3">0%</span></div>
+    <div class="f-row"><span class="f-label">Offres → Offre acceptée</span><div class="f-wrap"><div class="f-bar b4" id="b4" style="width:0%"></div></div><span class="f-pct" id="p4">0%</span></div>
   </div>
-</div>
-
-<div class="panel " id="panel-1">
-  <div class="period-label">08/06/2026 → 14/06/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">2</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">2</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">2</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">1</div>
-      <div class="kpi-label">Offres</div>
-    </div>
+  <div class="chart-box">
+    <div class="chart-title">Évolution mensuelle — 12 derniers mois</div>
+    <canvas id="chart" height="100"></canvas>
   </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:100%"></div>
-      </div>
-      <span class="funnel-pct">100%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:100%"></div>
-      </div>
-      <span class="funnel-pct">100%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:50%"></div>
-      </div>
-      <span class="funnel-pct">50%</span>
-    </div>
-  </div>
-</div>
-
-<div class="panel " id="panel-2">
-  <div class="period-label">01/06/2026 → 30/06/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">10</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">9</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">2</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">1</div>
-      <div class="kpi-label">Offres</div>
-    </div>
-  </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:90%"></div>
-      </div>
-      <span class="funnel-pct">90%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:22%"></div>
-      </div>
-      <span class="funnel-pct">22%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:50%"></div>
-      </div>
-      <span class="funnel-pct">50%</span>
-    </div>
-  </div>
-</div>
-
-<div class="panel " id="panel-3">
-  <div class="period-label">01/05/2026 → 31/05/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">15</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">9</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">7</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">5</div>
-      <div class="kpi-label">Offres</div>
-    </div>
-  </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:60%"></div>
-      </div>
-      <span class="funnel-pct">60%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:78%"></div>
-      </div>
-      <span class="funnel-pct">78%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:71%"></div>
-      </div>
-      <span class="funnel-pct">71%</span>
-    </div>
-  </div>
-</div>
-
-<div class="panel " id="panel-4">
-  <div class="period-label">01/04/2026 → 30/06/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">31</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">23</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">13</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">9</div>
-      <div class="kpi-label">Offres</div>
-    </div>
-  </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:74%"></div>
-      </div>
-      <span class="funnel-pct">74%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:57%"></div>
-      </div>
-      <span class="funnel-pct">57%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:69%"></div>
-      </div>
-      <span class="funnel-pct">69%</span>
-    </div>
-  </div>
-</div>
-
-<div class="panel " id="panel-5">
-  <div class="period-label">01/01/2026 → 31/03/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">32</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">20</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">12</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">8</div>
-      <div class="kpi-label">Offres</div>
-    </div>
-  </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:62%"></div>
-      </div>
-      <span class="funnel-pct">62%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:60%"></div>
-      </div>
-      <span class="funnel-pct">60%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:67%"></div>
-      </div>
-      <span class="funnel-pct">67%</span>
-    </div>
-  </div>
-</div>
-
-<div class="panel " id="panel-6">
-  <div class="period-label">01/01/2026 → 31/03/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">32</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">20</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">12</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">8</div>
-      <div class="kpi-label">Offres</div>
-    </div>
-  </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:62%"></div>
-      </div>
-      <span class="funnel-pct">62%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:60%"></div>
-      </div>
-      <span class="funnel-pct">60%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:67%"></div>
-      </div>
-      <span class="funnel-pct">67%</span>
-    </div>
-  </div>
-</div>
-
-<div class="panel " id="panel-7">
-  <div class="period-label">01/04/2026 → 30/06/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">31</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">23</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">13</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">9</div>
-      <div class="kpi-label">Offres</div>
-    </div>
-  </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:74%"></div>
-      </div>
-      <span class="funnel-pct">74%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:57%"></div>
-      </div>
-      <span class="funnel-pct">57%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:69%"></div>
-      </div>
-      <span class="funnel-pct">69%</span>
-    </div>
-  </div>
-</div>
-
-<div class="panel " id="panel-8">
-  <div class="period-label">01/07/2026 → 30/09/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Offres</div>
-    </div>
-  </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:0%"></div>
-      </div>
-      <span class="funnel-pct">0%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:0%"></div>
-      </div>
-      <span class="funnel-pct">0%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:0%"></div>
-      </div>
-      <span class="funnel-pct">0%</span>
-    </div>
-  </div>
-</div>
-
-<div class="panel " id="panel-9">
-  <div class="period-label">01/10/2026 → 31/12/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Offres</div>
-    </div>
-  </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:0%"></div>
-      </div>
-      <span class="funnel-pct">0%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:0%"></div>
-      </div>
-      <span class="funnel-pct">0%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:0%"></div>
-      </div>
-      <span class="funnel-pct">0%</span>
-    </div>
-  </div>
-</div>
-
-<div class="panel " id="panel-10">
-  <div class="period-label">01/01/2026 → 31/12/2026</div>
-  <div class="kpi-grid">
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-icon">📑</div>
-      <div class="kpi-value">63</div>
-      <div class="kpi-label">Sélectionnés</div>
-    </div>
-    <div class="kpi-card kpi-purple">
-      <div class="kpi-icon">🧪</div>
-      <div class="kpi-value">43</div>
-      <div class="kpi-label">Analyses</div>
-    </div>
-    <div class="kpi-card kpi-teal">
-      <div class="kpi-icon">👁️</div>
-      <div class="kpi-value">25</div>
-      <div class="kpi-label">Visites</div>
-    </div>
-    <div class="kpi-card kpi-amber">
-      <div class="kpi-icon">💰</div>
-      <div class="kpi-value">17</div>
-      <div class="kpi-label">Offres</div>
-    </div>
-  </div>
-  <div class="funnel">
-    <div class="funnel-title">Taux de conversion</div>
-    <div class="funnel-row">
-      <span class="funnel-label">Sélectionnés → Analyses</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:68%"></div>
-      </div>
-      <span class="funnel-pct">68%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Analyses → Visites</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-teal" style="width:58%"></div>
-      </div>
-      <span class="funnel-pct">58%</span>
-    </div>
-    <div class="funnel-row">
-      <span class="funnel-label">Visites → Offres</span>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar bar-amber" style="width:68%"></div>
-      </div>
-      <span class="funnel-pct">68%</span>
-    </div>
-  </div>
-</div>
-
-  <div class="refresh">Données Notion · relancer dashboard_mdb.py pour actualiser</div>
+  <div class="footer">Données Notion · relancer update_dashboard.sh pour actualiser</div>
 </div>
 <script>
-function showTab(i) {
-  document.querySelectorAll('.tab-btn').forEach((b,j) => b.classList.toggle('active', i===j));
-  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', i===j));
+const FIXES=[{"id": "sem", "label": "Semaine en cours", "debut": "2026-06-15", "fin": "2026-06-21", "kpi": {"sel": 5, "ana": 3, "vis": 0, "off": 0, "acc": 0}, "d": "15/06/2026", "f": "21/06/2026"}, {"id": "mois", "label": "Mois en cours", "debut": "2026-06-01", "fin": "2026-06-30", "kpi": {"sel": 10, "ana": 7, "vis": 2, "off": 1, "acc": 0}, "d": "01/06/2026", "f": "30/06/2026"}, {"id": "trim", "label": "T2 2026", "debut": "2026-04-01", "fin": "2026-06-30", "kpi": {"sel": 31, "ana": 20, "vis": 13, "off": 9, "acc": 0}, "d": "01/04/2026", "f": "30/06/2026"}, {"id": "year", "label": "Ann\u00e9e 2026", "debut": "2026-01-01", "fin": "2026-12-31", "kpi": {"sel": 63, "ana": 39, "vis": 25, "off": 17, "acc": 0}, "d": "01/01/2026", "f": "31/12/2026"}];
+const BIENS=[{"date": "2026-06-19", "statut": "Pr\u00e9-\u00e9tude apr\u00e8s appel"}, {"date": "2026-06-19", "statut": "Vendu / Annonce disparue"}, {"date": "2026-06-19", "statut": "Pr\u00e9-\u00e9tude apr\u00e8s appel"}, {"date": "2026-06-19", "statut": "A contacter"}, {"date": "2026-06-01", "statut": ""}, {"date": "2026-06-09", "statut": "KO apr\u00e8s visite"}, {"date": "2026-06-19", "statut": ""}, {"date": "2026-06-01", "statut": "KO apr\u00e8s appel"}, {"date": "2026-05-26", "statut": "Offre faite"}, {"date": "2026-05-07", "statut": "Vendu / Annonce disparue"}, {"date": "2026-05-19", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-05-19", "statut": "Etude en cours"}, {"date": "2026-05-08", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-05-05", "statut": "Etude en cours"}, {"date": "2026-05-12", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-05-06", "statut": "KO apr\u00e8s appel"}, {"date": "2026-05-18", "statut": "Vendu / Annonce disparue"}, {"date": "2026-05-06", "statut": "Vendu / Annonce disparue"}, {"date": "2026-05-06", "statut": "Vendu / Annonce disparue"}, {"date": "2026-05-19", "statut": "KO apr\u00e8s appel"}, {"date": "2026-04-08", "statut": "KO offre refus\u00e9e"}, {"date": "2026-05-22", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-04-30", "statut": "KO apr\u00e8s visite"}, {"date": "2026-06-05", "statut": "KO avant appel"}, {"date": "2026-05-19", "statut": "Attendre"}, {"date": "2026-04-23", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-06-12", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-04-13", "statut": "KO offre refus\u00e9e"}, {"date": "2026-02-10", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-02-23", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-02-10", "statut": "Vendu / Annonce disparue"}, {"date": "2026-02-09", "statut": "KO offre refus\u00e9e"}, {"date": "2026-02-25", "statut": ""}, {"date": "2026-03-10", "statut": "KO apr\u00e8s visite"}, {"date": "2026-02-04", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-02-10", "statut": "KO offre refus\u00e9e"}, {"date": "2026-03-05", "statut": "KO avant appel"}, {"date": "2026-03-02", "statut": "KO avant appel"}, {"date": "2026-01-29", "statut": "Vendu / Annonce disparue"}, {"date": "2026-03-02", "statut": "KO apr\u00e8s visite"}, {"date": "2026-03-02", "statut": "KO avant appel"}, {"date": "2026-03-16", "statut": "Vendu / Annonce disparue"}, {"date": "2026-02-20", "statut": "KO apr\u00e8s visite"}, {"date": "2026-01-23", "statut": "Vendu / Annonce disparue"}, {"date": "2026-01-23", "statut": "Attendre"}, {"date": "2026-02-10", "statut": "Relancer suite offre refus\u00e9e"}, {"date": "2026-01-15", "statut": "KO apr\u00e8s \u00e9tude finale"}, {"date": "2026-03-02", "statut": "A contacter"}, {"date": "2026-04-08", "statut": "Vendu / Annonce disparue"}, {"date": "2026-01-22", "statut": "KO apr\u00e8s appel"}, {"date": "2026-01-21", "statut": "Vendu / Annonce disparue"}, {"date": "2026-03-02", "statut": "KO avant appel"}, {"date": "2026-01-22", "statut": "Vendu / Annonce disparue"}, {"date": "2026-03-02", "statut": "KO avant appel"}, {"date": "2026-02-04", "statut": "KO offre refus\u00e9e"}, {"date": "2026-01-22", "statut": "Vendu / Annonce disparue"}, {"date": "2026-01-22", "statut": "Vendu / Annonce disparue"}, {"date": "2026-04-08", "statut": ""}, {"date": "2025-11-24", "statut": "KO apr\u00e8s visite"}, {"date": "2026-01-22", "statut": "Vendu / Annonce disparue"}, {"date": "2026-01-13", "statut": "Vendu / Annonce disparue"}, {"date": "2026-05-19", "statut": "Attendre"}, {"date": "2026-02-10", "statut": "KO offre refus\u00e9e"}, {"date": "2026-03-02", "statut": "Vendu / Annonce disparue"}];
+const SEMAINES=[{"label": "S25 \u2014 15/06 au 21/06/2026", "debut": "2026-06-15", "fin": "2026-06-21"}, {"label": "S24 \u2014 08/06 au 14/06/2026", "debut": "2026-06-08", "fin": "2026-06-14"}, {"label": "S23 \u2014 01/06 au 07/06/2026", "debut": "2026-06-01", "fin": "2026-06-07"}, {"label": "S22 \u2014 25/05 au 31/05/2026", "debut": "2026-05-25", "fin": "2026-05-31"}, {"label": "S21 \u2014 18/05 au 24/05/2026", "debut": "2026-05-18", "fin": "2026-05-24"}, {"label": "S20 \u2014 11/05 au 17/05/2026", "debut": "2026-05-11", "fin": "2026-05-17"}, {"label": "S19 \u2014 04/05 au 10/05/2026", "debut": "2026-05-04", "fin": "2026-05-10"}, {"label": "S18 \u2014 27/04 au 03/05/2026", "debut": "2026-04-27", "fin": "2026-05-03"}, {"label": "S17 \u2014 20/04 au 26/04/2026", "debut": "2026-04-20", "fin": "2026-04-26"}, {"label": "S16 \u2014 13/04 au 19/04/2026", "debut": "2026-04-13", "fin": "2026-04-19"}, {"label": "S15 \u2014 06/04 au 12/04/2026", "debut": "2026-04-06", "fin": "2026-04-12"}, {"label": "S14 \u2014 30/03 au 05/04/2026", "debut": "2026-03-30", "fin": "2026-04-05"}, {"label": "S13 \u2014 23/03 au 29/03/2026", "debut": "2026-03-23", "fin": "2026-03-29"}, {"label": "S12 \u2014 16/03 au 22/03/2026", "debut": "2026-03-16", "fin": "2026-03-22"}, {"label": "S11 \u2014 09/03 au 15/03/2026", "debut": "2026-03-09", "fin": "2026-03-15"}, {"label": "S10 \u2014 02/03 au 08/03/2026", "debut": "2026-03-02", "fin": "2026-03-08"}, {"label": "S09 \u2014 23/02 au 01/03/2026", "debut": "2026-02-23", "fin": "2026-03-01"}, {"label": "S08 \u2014 16/02 au 22/02/2026", "debut": "2026-02-16", "fin": "2026-02-22"}, {"label": "S07 \u2014 09/02 au 15/02/2026", "debut": "2026-02-09", "fin": "2026-02-15"}, {"label": "S06 \u2014 02/02 au 08/02/2026", "debut": "2026-02-02", "fin": "2026-02-08"}, {"label": "S05 \u2014 26/01 au 01/02/2026", "debut": "2026-01-26", "fin": "2026-02-01"}, {"label": "S04 \u2014 19/01 au 25/01/2026", "debut": "2026-01-19", "fin": "2026-01-25"}, {"label": "S03 \u2014 12/01 au 18/01/2026", "debut": "2026-01-12", "fin": "2026-01-18"}, {"label": "S02 \u2014 05/01 au 11/01/2026", "debut": "2026-01-05", "fin": "2026-01-11"}, {"label": "S01 \u2014 29/12 au 04/01/2026", "debut": "2025-12-29", "fin": "2026-01-04"}, {"label": "S52 \u2014 22/12 au 28/12/2025", "debut": "2025-12-22", "fin": "2025-12-28"}];
+const MOIS=[{"label": "Jun. 2026", "debut": "2026-06-01", "fin": "2026-06-30"}, {"label": "Mai. 2026", "debut": "2026-05-01", "fin": "2026-05-31"}, {"label": "Avr. 2026", "debut": "2026-04-01", "fin": "2026-04-30"}, {"label": "Mar. 2026", "debut": "2026-03-01", "fin": "2026-03-31"}, {"label": "F\u00e9v. 2026", "debut": "2026-02-01", "fin": "2026-02-28"}, {"label": "Jan. 2026", "debut": "2026-01-01", "fin": "2026-01-31"}, {"label": "D\u00e9c. 2025", "debut": "2025-12-01", "fin": "2025-12-31"}, {"label": "Nov. 2025", "debut": "2025-11-01", "fin": "2025-11-30"}, {"label": "Oct. 2025", "debut": "2025-10-01", "fin": "2025-10-31"}, {"label": "Sep. 2025", "debut": "2025-09-01", "fin": "2025-09-30"}, {"label": "Ao\u00fb. 2025", "debut": "2025-08-01", "fin": "2025-08-31"}, {"label": "Jul. 2025", "debut": "2025-07-01", "fin": "2025-07-31"}, {"label": "Jun. 2025", "debut": "2025-06-01", "fin": "2025-06-30"}, {"label": "Mai. 2025", "debut": "2025-05-01", "fin": "2025-05-31"}, {"label": "Avr. 2025", "debut": "2025-04-01", "fin": "2025-04-30"}, {"label": "Mar. 2025", "debut": "2025-03-01", "fin": "2025-03-31"}, {"label": "F\u00e9v. 2025", "debut": "2025-02-01", "fin": "2025-02-28"}, {"label": "Jan. 2025", "debut": "2025-01-01", "fin": "2025-01-31"}, {"label": "D\u00e9c. 2024", "debut": "2024-12-01", "fin": "2024-12-31"}, {"label": "Nov. 2024", "debut": "2024-11-01", "fin": "2024-11-30"}, {"label": "Oct. 2024", "debut": "2024-10-01", "fin": "2024-10-31"}, {"label": "Sep. 2024", "debut": "2024-09-01", "fin": "2024-09-30"}, {"label": "Ao\u00fb. 2024", "debut": "2024-08-01", "fin": "2024-08-31"}, {"label": "Jul. 2024", "debut": "2024-07-01", "fin": "2024-07-31"}];
+const TRIMS=[{"label": "T2 2026", "debut": "2026-04-01", "fin": "2026-06-30"}, {"label": "T1 2026", "debut": "2026-01-01", "fin": "2026-03-31"}, {"label": "T4 2025", "debut": "2025-10-01", "fin": "2025-12-31"}, {"label": "T3 2025", "debut": "2025-07-01", "fin": "2025-09-30"}, {"label": "T2 2025", "debut": "2025-04-01", "fin": "2025-06-30"}, {"label": "T1 2025", "debut": "2025-01-01", "fin": "2025-03-31"}, {"label": "T4 2024", "debut": "2024-10-01", "fin": "2024-12-31"}, {"label": "T3 2024", "debut": "2024-07-01", "fin": "2024-09-30"}];
+const S_ANA=new Set(["Pr\u00e9-\u00e9tude avant appel", "KO avant appel", "KO pr\u00e9-\u00e9tude", "Pr\u00e9-\u00e9tude apr\u00e8s appel", "A contacter", "Message laiss\u00e9", "KO apr\u00e8s appel", "Visite planifi\u00e9e", "KO apr\u00e8s visite", "Etude en cours", "KO apr\u00e8s \u00e9tude finale", "Faire offre", "Offre faite", "KO offre refus\u00e9e", "Offre accept\u00e9e", "Relancer suite offre refus\u00e9e"]);
+const S_VIS=new Set(["Visite planifi\u00e9e", "KO apr\u00e8s visite", "Etude en cours", "KO apr\u00e8s \u00e9tude finale", "Faire offre", "Offre faite", "KO offre refus\u00e9e", "Relancer suite offre refus\u00e9e", "Offre accept\u00e9e"]);
+const S_OFF=new Set(["Offre faite", "KO offre refus\u00e9e", "Relancer suite offre refus\u00e9e", "Offre accept\u00e9e"]);
+const S_ACC=new Set(["Offre accept\u00e9e"]);
+
+function computeKpi(debut,fin){
+  const d0=new Date(debut),d1=new Date(fin);
+  let sel=0,ana=0,vis=0,off=0,acc=0;
+  for(const b of BIENS){const bd=new Date(b.date);if(bd<d0||bd>d1)continue;sel++;if(S_ANA.has(b.statut))ana++;if(S_VIS.has(b.statut))vis++;if(S_OFF.has(b.statut))off++;if(S_ACC.has(b.statut))acc++;}
+  return{sel,ana,vis,off,acc};
 }
+function pct(a,b){return b?Math.round(a/b*100):0;}
+function updateUI(k,debut,fin){
+  document.getElementById('v-sel').textContent=k.sel;
+  document.getElementById('v-ana').textContent=k.ana;
+  document.getElementById('v-vis').textContent=k.vis;
+  document.getElementById('v-off').textContent=k.off;
+  document.getElementById('period-info').textContent=new Date(debut).toLocaleDateString('fr-FR')+' → '+new Date(fin).toLocaleDateString('fr-FR');
+  [[pct(k.ana,k.sel),'b1','p1'],[pct(k.vis,k.ana),'b2','p2'],[pct(k.off,k.vis),'b3','p3'],[pct(k.acc,k.off),'b4','p4']].forEach(([v,b,p])=>{document.getElementById(b).style.width=v+'%';document.getElementById(p).textContent=v+'%';});
+}
+function showFixed(i){
+  document.querySelectorAll('.tab-btn').forEach((b,j)=>b.classList.toggle('active',i===j));
+  ['sel-sem','sel-mois','sel-trim'].forEach(id=>document.getElementById(id).value='');
+  const p=FIXES[i];updateUI(p.kpi,p.debut,p.fin);
+}
+function showCustom(type){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const selId=type==='sem'?'sel-sem':type==='mois'?'sel-mois':'sel-trim';
+  const val=document.getElementById(selId).value;if(!val)return;
+  const[debut,fin]=val.split('|');
+  if(type!=='sem')document.getElementById('sel-sem').value='';
+  if(type!=='mois')document.getElementById('sel-mois').value='';
+  if(type!=='trim')document.getElementById('sel-trim').value='';
+  updateUI(computeKpi(debut,fin),debut,fin);
+}
+function populateSelect(id,items){const sel=document.getElementById(id);for(const it of items){const o=document.createElement('option');o.value=it.debut+'|'+it.fin;o.textContent=it.label;sel.appendChild(o);}}
+populateSelect('sel-sem',SEMAINES);
+populateSelect('sel-mois',MOIS);
+populateSelect('sel-trim',TRIMS);
+
+// Graphe 12 mois
+const ctx = document.getElementById('chart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ["Jul 2025", "Ao\u00fb 2025", "Sep 2025", "Oct 2025", "Nov 2025", "D\u00e9c 2025", "Jan 2026", "F\u00e9v 2026", "Mar 2026", "Avr 2026", "Mai 2026", "Jun 2026"],
+    datasets: [
+      {
+        label: 'Sélectionnés',
+        data: [0, 0, 0, 0, 1, 0, 11, 11, 10, 6, 15, 10],
+        borderColor: '#185FA5',
+        backgroundColor: 'rgba(24,95,165,0.08)',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.3,
+        fill: false,
+      },
+      {
+        label: 'Analyses',
+        data: [0, 0, 0, 0, 1, 0, 2, 9, 8, 4, 9, 7],
+        borderColor: '#534AB7',
+        backgroundColor: 'rgba(83,74,183,0.08)',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.3,
+        fill: false,
+      },
+      {
+        label: 'Visites',
+        data: [0, 0, 0, 0, 1, 0, 1, 9, 2, 4, 7, 2],
+        borderColor: '#0f6e56',
+        backgroundColor: 'rgba(15,110,86,0.08)',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.3,
+        fill: false,
+      },
+      {
+        label: 'Offres',
+        data: [0, 0, 0, 0, 0, 0, 0, 8, 0, 3, 5, 1],
+        borderColor: '#EF9F27',
+        backgroundColor: 'rgba(239,159,39,0.08)',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.3,
+        fill: false,
+      },
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          color: '#888',
+          font: { size: 11 },
+          boxWidth: 12,
+          padding: 16,
+        }
+      },
+      tooltip: {
+        backgroundColor: '#1a1a2e',
+        borderColor: '#2a2a4a',
+        borderWidth: 1,
+        titleColor: '#ccc',
+        bodyColor: '#aaa',
+        padding: 10,
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: '#1e1e30' },
+        ticks: { color: '#555', font: { size: 11 } }
+      },
+      y: {
+        grid: { color: '#1e1e30' },
+        ticks: { color: '#555', font: { size: 11 }, stepSize: 1 },
+        beginAtZero: true,
+      }
+    }
+  }
+});
 </script>
-</body>
-</html>
+</body></html>
